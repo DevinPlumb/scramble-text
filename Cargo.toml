@@ -1,0 +1,40 @@
+[package]
+name = "scramble-text"
+version = "0.1.0"
+edition = "2021"
+description = "A Rust/Wasm library for creating text scramble animations"
+license = "MIT"
+authors = ["Devin Plumb"]
+
+[lib]
+crate-type = ["cdylib", "rlib"]
+
+[dependencies]
+rand = { version = "0.8", features = ["getrandom"] }
+getrandom = { version = "0.2", features = ["js"] }
+wasm-bindgen = { version = "0.2", features = ["serde-serialize"] }
+web-sys = { version = "0.3", features = [
+    "Window",
+    "Element",
+    "MediaQueryList",
+    "HtmlElement",
+    "Document",
+    "Node",
+    "console",
+    "Performance",
+    "PerformanceTiming"
+]}
+js-sys = "0.3"
+serde = { version = "1.0", features = ["derive"] }
+serde-wasm-bindgen = "0.5"
+console_error_panic_hook = "0.1"
+
+[dev-dependencies]
+wasm-bindgen-test = "0.3"
+wasm-bindgen-futures = "0.4"
+
+[profile.release]
+opt-level = 3
+lto = true
+codegen-units = 1
+panic = "abort" 

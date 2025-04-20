@@ -1,0 +1,201 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Scramble Text Demo</title>
+    <style>
+      body {
+        font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto,
+          Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
+        max-width: 800px;
+        margin: 0 auto;
+        padding: 20px;
+        line-height: 1.6;
+      }
+      .demo-section {
+        margin: 20px 0;
+        padding: 20px;
+        border: 1px solid #ddd;
+        border-radius: 8px;
+      }
+      .controls {
+        margin: 20px 0;
+        display: flex;
+        gap: 10px;
+        flex-wrap: wrap;
+      }
+      button {
+        padding: 8px 16px;
+        border: none;
+        border-radius: 4px;
+        background: #0066cc;
+        color: white;
+        cursor: pointer;
+        transition: background 0.2s;
+      }
+      button:hover {
+        background: #0052a3;
+      }
+      .scramble-text {
+        font-size: 24px;
+        margin: 20px 0;
+        min-height: 36px;
+      }
+      input[type='range'] {
+        width: 200px;
+      }
+      .parameter {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        margin: 10px 0;
+      }
+      .parameter label {
+        min-width: 100px;
+      }
+    </style>
+  </head>
+  <body>
+    <h1>Scramble Text Demo</h1>
+
+    <div class="demo-section">
+      <h2>Basic Demo</h2>
+      <div id="basic-demo" class="scramble-text">Hello, World!</div>
+      <div class="controls">
+        <button onclick="startBasicDemo()">Start</button>
+        <button onclick="stopBasicDemo()">Stop</button>
+      </div>
+    </div>
+
+    <div class="demo-section">
+      <h2>Interactive Demo</h2>
+      <div id="interactive-demo" class="scramble-text">
+        Try me with different settings!
+      </div>
+      <div class="controls">
+        <div class="parameter">
+          <label for="speed">Speed:</label>
+          <input type="range" id="speed" min="0" max="100" value="100" />
+          <span id="speed-value">1.0</span>
+        </div>
+        <div class="parameter">
+          <label for="tick">Tick:</label>
+          <input type="range" id="tick" min="1" max="10" value="1" />
+          <span id="tick-value">1</span>
+        </div>
+        <div class="parameter">
+          <label for="chance">Chance:</label>
+          <input type="range" id="chance" min="0" max="100" value="100" />
+          <span id="chance-value">1.0</span>
+        </div>
+        <div class="parameter">
+          <label for="scramble">Scramble:</label>
+          <input type="range" id="scramble" min="1" max="20" value="3" />
+          <span id="scramble-value">3</span>
+        </div>
+        <div class="parameter">
+          <label for="overdrive">Overdrive:</label>
+          <input type="checkbox" id="overdrive" />
+        </div>
+      </div>
+      <div class="controls">
+        <button onclick="startInteractiveDemo()">Start</button>
+        <button onclick="stopInteractiveDemo()">Stop</button>
+      </div>
+    </div>
+
+    <script type="module">
+      import init, { ScrambleText } from '../pkg/scramble_text.js';
+
+      let basicDemo = null;
+      let interactiveDemo = null;
+
+      async function initialize() {
+        await init();
+        window.startBasicDemo = startBasicDemo;
+        window.stopBasicDemo = stopBasicDemo;
+        window.startInteractiveDemo = startInteractiveDemo;
+        window.stopInteractiveDemo = stopInteractiveDemo;
+
+        // Set up range input handlers
+        document.querySelectorAll('input[type="range"]').forEach((input) => {
+          input.addEventListener('input', updateValue);
+        });
+
+        // Add change handler for overdrive checkbox
+        document
+          .getElementById('overdrive')
+          .addEventListener('change', function () {
+            if (interactiveDemo) {
+              startInteractiveDemo();
+            }
+          });
+      }
+
+      function updateValue(e) {
+        const value = e.target.value;
+        const valueSpan = document.getElementById(`${e.target.id}-value`);
+        if (e.target.id === 'speed' || e.target.id === 'chance') {
+          valueSpan.textContent = (value / 100).toFixed(2);
+        } else {
+          valueSpan.textContent = value;
+        }
+
+        // If the interactive demo is running, restart it with new settings
+        if (interactiveDemo) {
+          startInteractiveDemo();
+        }
+      }
+
+      function getInteractiveProps() {
+        return {
+          text: document.getElementById('interactive-demo').textContent,
+          speed: parseFloat(document.getElementById('speed').value) / 100,
+          tick: parseInt(document.getElementById('tick').value),
+          chance: parseFloat(document.getElementById('chance').value) / 100,
+          scramble: parseInt(document.getElementById('scramble').value),
+          overdrive: document.getElementById('overdrive').checked,
+          ignore: [' ', ',', '!', '?', '.'],
+        };
+      }
+
+      window.startBasicDemo = function startBasicDemo() {
+        if (basicDemo) basicDemo.stop();
+        const element = document.getElementById('basic-demo');
+        basicDemo = new ScrambleText(element, {
+          text: element.textContent,
+          speed: 1.0,
+          tick: 1,
+          chance: 1.0,
+          scramble: 3,
+          ignore: [' ', ',', '!', '?', '.'],
+        });
+        basicDemo.start();
+      };
+
+      window.stopBasicDemo = function stopBasicDemo() {
+        if (basicDemo) {
+          basicDemo.stop();
+          basicDemo = null;
+        }
+      };
+
+      window.startInteractiveDemo = function startInteractiveDemo() {
+        if (interactiveDemo) interactiveDemo.stop();
+        const element = document.getElementById('interactive-demo');
+        interactiveDemo = new ScrambleText(element, getInteractiveProps());
+        interactiveDemo.start();
+      };
+
+      window.stopInteractiveDemo = function stopInteractiveDemo() {
+        if (interactiveDemo) {
+          interactiveDemo.stop();
+          interactiveDemo = null;
+        }
+      };
+
+      initialize().catch(console.error);
+    </script>
+  </body>
+</html>

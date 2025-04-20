@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <title>Scramble Text Example</title>
+    <style>
+      body {
+        font-family: system-ui, -apple-system, sans-serif;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        min-height: 100vh;
+        margin: 0;
+        background: #f0f0f0;
+      }
+      .scramble-text {
+        font-size: 2em;
+        margin: 20px;
+        min-height: 1.2em;
+      }
+      button {
+        padding: 10px 20px;
+        font-size: 1em;
+        margin: 5px;
+        cursor: pointer;
+      }
+    </style>
+  </head>
+  <body>
+    <div id="demo" class="scramble-text">Hello, World!</div>
+    <div>
+      <button onclick="startScramble()">Start</button>
+      <button onclick="stopScramble()">Stop</button>
+    </div>
+
+    <script type="module">
+      import init, { ScrambleText } from '../pkg/scramble_text.js';
+
+      let scrambler = null;
+
+      async function initialize() {
+        await init();
+
+        const element = document.getElementById('demo');
+        scrambler = new ScrambleText(element, {
+          text: 'Hello, World!',
+          speed: 0.8,
+          chance: 0.7,
+          step: 2,
+          scramble: 3,
+        });
+      }
+
+      window.startScramble = function () {
+        if (scrambler) {
+          scrambler.start();
+        }
+      };
+
+      window.stopScramble = function () {
+        if (scrambler) {
+          scrambler.stop();
+        }
+      };
+
+      initialize().catch(console.error);
+    </script>
+  </body>
+</html>

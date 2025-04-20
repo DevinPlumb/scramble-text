@@ -1,0 +1,11 @@
+*.log
+.DS_Store
+node_modules
+.cache
+dist
+.parcel-cache
+/target
+/pkg
+**/*.rs.bk
+Cargo.lock
+wasm-pack.log
