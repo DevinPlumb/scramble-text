@@ -73,6 +73,10 @@ pub struct UseScrambleProps {
     /// When true, animation starts from empty string
     #[serde(default)]
     pub overflow: bool,
+
+    /// When true, enables hover-to-replay functionality
+    #[serde(default)]
+    pub hover_replay: bool,
 }
 
 fn default_speed() -> f32 {
@@ -163,6 +167,7 @@ impl Default for UseScrambleProps {
             range: default_range(),
             overdrive: false,
             overflow: false,
+            hover_replay: false,
         }
     }
 }

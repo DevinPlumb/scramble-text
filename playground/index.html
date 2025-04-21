@@ -163,6 +163,7 @@
       import init, { ScrambleText } from '../pkg/scramble_text.js';
 
       let interactiveDemo = null;
+      let isAnimating = false;
 
       async function initialize() {
         await init();
@@ -176,9 +177,12 @@
         // Add change handler for overdrive checkbox
         document
           .getElementById('overdrive')
-          .addEventListener('change', function () {
-            replayDemo();
-          });
+          .addEventListener('change', updateValue);
+
+        // Add hover handler for replay
+        document
+          .getElementById('interactive-demo')
+          .addEventListener('mouseenter', replayDemo);
 
         // Start initial animation
         replayDemo();
@@ -192,9 +196,6 @@
         } else {
           valueSpan.textContent = value;
         }
-
-        // Replay the animation with new settings
-        replayDemo();
       }
 
       function getInteractiveProps() {
@@ -210,9 +211,17 @@
       }
 
       window.replayDemo = function replayDemo() {
+        if (isAnimating) return;
         if (interactiveDemo) interactiveDemo.stop();
+
         const element = document.getElementById('interactive-demo');
         interactiveDemo = new ScrambleText(element, getInteractiveProps());
+
+        isAnimating = true;
+        interactiveDemo.set_on_animation_end(function () {
+          isAnimating = false;
+        });
+
         interactiveDemo.start();
       };
 

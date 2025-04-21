@@ -2,7 +2,8 @@ use rand::Rng;
 use std::cell::RefCell;
 use std::rc::Rc;
 use wasm_bindgen::prelude::*;
-use web_sys::Element;
+use wasm_bindgen::JsCast;
+use web_sys::{Element, EventTarget, MouseEvent};
 
 pub mod scramble;
 pub use scramble::*;
@@ -53,8 +54,8 @@ impl ScrambleText {
         let props: UseScrambleProps = serde_wasm_bindgen::from_value(props)?;
         props.validate().map_err(|e| JsError::new(&e))?;
 
-        Ok(ScrambleText {
-            element,
+        let instance = ScrambleText {
+            element: element.clone(),
             props: props.clone(),
             animation_frame_id: 0,
             animation_closure: None,
@@ -63,7 +64,34 @@ impl ScrambleText {
             on_animation_frame: None,
             frame_count: 0,
             scramble_counts: vec![props.scramble; props.text.len()],
-        })
+        };
+
+        if props.hover_replay {
+            let instance_ref = Rc::new(RefCell::new(instance));
+            let instance_clone = instance_ref.clone();
+
+            let closure = Closure::wrap(Box::new(move |_event: MouseEvent| {
+                if let Ok(mut inst) = instance_clone.try_borrow_mut() {
+                    if inst.animation_frame_id == 0 {
+                        let _ = inst.start();
+                    }
+                }
+            }) as Box<dyn FnMut(MouseEvent)>);
+
+            element
+                .dyn_ref::<EventTarget>()
+                .ok_or_else(|| JsError::new("Failed to cast element to EventTarget"))?
+                .add_event_listener_with_callback("mouseenter", closure.as_ref().unchecked_ref())
+                .map_err(|e| JsError::new(&format!("Failed to add event listener: {:?}", e)))?;
+
+            closure.forget();
+
+            Ok(Rc::try_unwrap(instance_ref)
+                .map_err(|_| JsError::new("Failed to unwrap instance"))?
+                .into_inner())
+        } else {
+            Ok(instance)
+        }
     }
 
     #[wasm_bindgen]
