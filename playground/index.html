@@ -8,113 +8,163 @@
       body {
         font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto,
           Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
-        max-width: 800px;
-        margin: 0 auto;
-        padding: 20px;
-        line-height: 1.6;
-      }
-      .demo-section {
-        margin: 20px 0;
-        padding: 20px;
-        border: 1px solid #ddd;
-        border-radius: 8px;
-      }
-      .controls {
-        margin: 20px 0;
+        margin: 0;
+        padding: 0;
+        background: #000;
+        color: #fff;
+        height: 100vh;
         display: flex;
-        gap: 10px;
-        flex-wrap: wrap;
+        overflow: hidden;
       }
-      button {
-        padding: 8px 16px;
-        border: none;
-        border-radius: 4px;
-        background: #0066cc;
-        color: white;
-        cursor: pointer;
-        transition: background 0.2s;
-      }
-      button:hover {
-        background: #0052a3;
-      }
-      .scramble-text {
-        font-size: 24px;
-        margin: 20px 0;
-        min-height: 36px;
-      }
-      input[type='range'] {
-        width: 200px;
-      }
-      .parameter {
+
+      .main-content {
+        flex-grow: 1;
         display: flex;
         align-items: center;
-        gap: 10px;
-        margin: 10px 0;
+        justify-content: center;
+        height: 100vh;
       }
+
+      .scramble-text {
+        font-size: 48px;
+        font-weight: 300;
+        letter-spacing: 0.05em;
+        text-align: center;
+        max-width: 80%;
+      }
+
+      .controls-panel {
+        background: rgba(255, 255, 255, 0.1);
+        backdrop-filter: blur(10px);
+        width: 300px;
+        height: 100vh;
+        padding: 2rem;
+        box-sizing: border-box;
+        border-left: 1px solid rgba(255, 255, 255, 0.1);
+        overflow-y: auto;
+      }
+
+      .parameter {
+        margin-bottom: 2rem;
+      }
+
       .parameter label {
-        min-width: 100px;
+        display: block;
+        margin-bottom: 0.5rem;
+        font-size: 0.9rem;
+        opacity: 0.8;
+      }
+
+      .parameter-row {
+        display: flex;
+        align-items: center;
+        gap: 1rem;
+      }
+
+      input[type='range'] {
+        flex-grow: 1;
+        height: 2px;
+        -webkit-appearance: none;
+        background: rgba(255, 255, 255, 0.2);
+        border-radius: 2px;
+      }
+
+      input[type='range']::-webkit-slider-thumb {
+        -webkit-appearance: none;
+        width: 12px;
+        height: 12px;
+        background: #fff;
+        border-radius: 50%;
+        cursor: pointer;
+      }
+
+      input[type='checkbox'] {
+        width: 16px;
+        height: 16px;
+      }
+
+      .value-display {
+        font-size: 0.8rem;
+        opacity: 0.6;
+        width: 3em;
+        text-align: right;
+      }
+
+      button {
+        background: rgba(255, 255, 255, 0.1);
+        border: 1px solid rgba(255, 255, 255, 0.2);
+        color: #fff;
+        padding: 0.8rem 1.5rem;
+        border-radius: 4px;
+        cursor: pointer;
+        transition: all 0.2s ease;
+        width: 100%;
+        margin-bottom: 0.5rem;
+      }
+
+      button:hover {
+        background: rgba(255, 255, 255, 0.2);
       }
     </style>
   </head>
   <body>
-    <h1>Scramble Text Demo</h1>
-
-    <div class="demo-section">
-      <h2>Basic Demo</h2>
-      <div id="basic-demo" class="scramble-text">Hello, World!</div>
-      <div class="controls">
-        <button onclick="startBasicDemo()">Start</button>
-        <button onclick="stopBasicDemo()">Stop</button>
-      </div>
-    </div>
-
-    <div class="demo-section">
-      <h2>Interactive Demo</h2>
+    <div class="main-content">
       <div id="interactive-demo" class="scramble-text">
         Try me with different settings!
       </div>
-      <div class="controls">
-        <div class="parameter">
-          <label for="speed">Speed:</label>
+    </div>
+
+    <div class="controls-panel">
+      <div class="parameter">
+        <label for="speed">Speed</label>
+        <div class="parameter-row">
           <input type="range" id="speed" min="0" max="100" value="100" />
-          <span id="speed-value">1.0</span>
+          <span id="speed-value" class="value-display">1.0</span>
         </div>
-        <div class="parameter">
-          <label for="tick">Tick:</label>
+      </div>
+
+      <div class="parameter">
+        <label for="tick">Tick</label>
+        <div class="parameter-row">
           <input type="range" id="tick" min="1" max="10" value="1" />
-          <span id="tick-value">1</span>
+          <span id="tick-value" class="value-display">1</span>
         </div>
-        <div class="parameter">
-          <label for="chance">Chance:</label>
+      </div>
+
+      <div class="parameter">
+        <label for="chance">Chance</label>
+        <div class="parameter-row">
           <input type="range" id="chance" min="0" max="100" value="100" />
-          <span id="chance-value">1.0</span>
+          <span id="chance-value" class="value-display">1.0</span>
         </div>
-        <div class="parameter">
-          <label for="scramble">Scramble:</label>
+      </div>
+
+      <div class="parameter">
+        <label for="scramble">Scramble</label>
+        <div class="parameter-row">
           <input type="range" id="scramble" min="1" max="20" value="3" />
-          <span id="scramble-value">3</span>
+          <span id="scramble-value" class="value-display">3</span>
         </div>
-        <div class="parameter">
-          <label for="overdrive">Overdrive:</label>
+      </div>
+
+      <div class="parameter">
+        <label for="overdrive">Overdrive</label>
+        <div class="parameter-row">
           <input type="checkbox" id="overdrive" />
         </div>
       </div>
-      <div class="controls">
-        <button onclick="startInteractiveDemo()">Start</button>
-        <button onclick="stopInteractiveDemo()">Stop</button>
-      </div>
+
+      <button onclick="startInteractiveDemo()">Start</button>
+      <button onclick="stopInteractiveDemo()">Stop</button>
     </div>
 
     <script type="module">
       import init, { ScrambleText } from '../pkg/scramble_text.js';
 
-      let basicDemo = null;
       let interactiveDemo = null;
 
       async function initialize() {
         await init();
-        window.startBasicDemo = startBasicDemo;
-        window.stopBasicDemo = stopBasicDemo;
         window.startInteractiveDemo = startInteractiveDemo;
         window.stopInteractiveDemo = stopInteractiveDemo;
 
@@ -159,27 +209,6 @@
           ignore: [' ', ',', '!', '?', '.'],
         };
       }
-
-      window.startBasicDemo = function startBasicDemo() {
-        if (basicDemo) basicDemo.stop();
-        const element = document.getElementById('basic-demo');
-        basicDemo = new ScrambleText(element, {
-          text: element.textContent,
-          speed: 1.0,
-          tick: 1,
-          chance: 1.0,
-          scramble: 3,
-          ignore: [' ', ',', '!', '?', '.'],
-        });
-        basicDemo.start();
-      };
-
-      window.stopBasicDemo = function stopBasicDemo() {
-        if (basicDemo) {
-          basicDemo.stop();
-          basicDemo = null;
-        }
-      };
 
       window.startInteractiveDemo = function startInteractiveDemo() {
         if (interactiveDemo) interactiveDemo.stop();
