@@ -111,27 +111,28 @@ impl ScrambleText {
         let frame_count = Rc::new(RefCell::new(self.frame_count));
         let animation_id = Rc::new(RefCell::new(0));
         let animation_id_clone = animation_id.clone();
+        let on_animation_end = self.on_animation_end.clone();
 
         let animation_closure = Closure::wrap(Box::new(move |_time: f64| {
             let mut current_text = String::with_capacity(text.len());
             let mut rng = rand::thread_rng();
+            let mut animation_complete = true;
 
             // Update frame count
             *frame_count.borrow_mut() += 1;
             let current_frame = *frame_count.borrow();
 
-            // On each tick, decrease scramble counts for some characters
+            // On each tick, decrease scramble counts for characters in sequence
             if current_frame % tick == 0 {
                 let mut counts = scramble_counts.borrow_mut();
                 for i in 0..counts.len() {
-                    if rng.gen::<f32>() <= chance {
-                        if let Some(count) = counts.get_mut(i) {
-                            *count = count.saturating_sub(1);
+                    if counts[i] > 0 {
+                        if i < ((current_frame / tick) as usize * step as usize)
+                            && rng.gen::<f32>() <= chance
+                        {
+                            counts[i] = counts[i].saturating_sub(1);
                         }
-                    }
-                    // Break if we've processed enough characters for this step
-                    if i >= step as usize - 1 {
-                        break;
+                        animation_complete = false;
                     }
                 }
             }
@@ -140,6 +141,7 @@ impl ScrambleText {
             for (i, ch) in text.chars().enumerate() {
                 let counts = scramble_counts.borrow();
                 if i < counts.len() && counts[i] > 0 {
+                    animation_complete = false;
                     // Character is still being scrambled
                     if overdrive {
                         current_text.push('_');
@@ -165,12 +167,18 @@ impl ScrambleText {
             }
 
             // Stop the interval if animation is complete
-            if !scramble_counts.borrow().iter().any(|&count| count > 0) {
+            if animation_complete {
                 if let Some(window) = web_sys::window() {
                     let id = *animation_id_clone.borrow();
                     if id != 0 {
                         window.clear_interval_with_handle(id);
                         *animation_id_clone.borrow_mut() = 0;
+
+                        // Call the end callback if it exists
+                        if let Some(callback) = &on_animation_end {
+                            let this = JsValue::null();
+                            let _ = callback.call0(&this);
+                        }
                     }
                 }
             }

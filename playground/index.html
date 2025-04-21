@@ -26,9 +26,10 @@
       }
 
       .scramble-text {
-        font-size: 48px;
-        font-weight: 300;
-        letter-spacing: 0.05em;
+        font-family: 'Menlo', 'Monaco', 'Courier New', monospace;
+        font-size: 16px;
+        font-weight: normal;
+        letter-spacing: 0;
         text-align: center;
         max-width: 80%;
       }
@@ -64,6 +65,7 @@
       input[type='range'] {
         flex-grow: 1;
         height: 2px;
+        appearance: none;
         -webkit-appearance: none;
         background: rgba(255, 255, 255, 0.2);
         border-radius: 2px;
@@ -154,8 +156,7 @@
         </div>
       </div>
 
-      <button onclick="startInteractiveDemo()">Start</button>
-      <button onclick="stopInteractiveDemo()">Stop</button>
+      <button onclick="replayDemo()">Replay</button>
     </div>
 
     <script type="module">
@@ -165,8 +166,7 @@
 
       async function initialize() {
         await init();
-        window.startInteractiveDemo = startInteractiveDemo;
-        window.stopInteractiveDemo = stopInteractiveDemo;
+        window.replayDemo = replayDemo;
 
         // Set up range input handlers
         document.querySelectorAll('input[type="range"]').forEach((input) => {
@@ -177,10 +177,11 @@
         document
           .getElementById('overdrive')
           .addEventListener('change', function () {
-            if (interactiveDemo) {
-              startInteractiveDemo();
-            }
+            replayDemo();
           });
+
+        // Start initial animation
+        replayDemo();
       }
 
       function updateValue(e) {
@@ -192,10 +193,8 @@
           valueSpan.textContent = value;
         }
 
-        // If the interactive demo is running, restart it with new settings
-        if (interactiveDemo) {
-          startInteractiveDemo();
-        }
+        // Replay the animation with new settings
+        replayDemo();
       }
 
       function getInteractiveProps() {
@@ -210,18 +209,11 @@
         };
       }
 
-      window.startInteractiveDemo = function startInteractiveDemo() {
+      window.replayDemo = function replayDemo() {
         if (interactiveDemo) interactiveDemo.stop();
         const element = document.getElementById('interactive-demo');
         interactiveDemo = new ScrambleText(element, getInteractiveProps());
         interactiveDemo.start();
-      };
-
-      window.stopInteractiveDemo = function stopInteractiveDemo() {
-        if (interactiveDemo) {
-          interactiveDemo.stop();
-          interactiveDemo = null;
-        }
       };
 
       initialize().catch(console.error);
